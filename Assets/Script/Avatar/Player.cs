@@ -12,6 +12,8 @@ namespace APAtelier.DS.Avatar
         [SerializeField] 
         private LinearMixerTransitionAsset idleClip;
         [SerializeField] 
+        private ClipTransitionAsset rollClip;
+        [SerializeField] 
         private Camera playerCamera;
         private PlayerController _controller;
         private float idleTimer;
@@ -43,6 +45,11 @@ namespace APAtelier.DS.Avatar
                 moveValue.z += vValue;
             }
 
+            if (input.PressKey.Contains(InputKey.Roll))
+            {
+                _animancerComponent.Play(rollClip).Events.OnEnd += Idle;
+            }
+            
             var speed = 5.0f;
             // Calculate the movement direction based on camera rotation
             Vector3 movementDirection = Quaternion.Euler(0, playerCamera.transform.eulerAngles.y, 0) * new Vector3(moveValue.x, 0, moveValue.z);
@@ -73,6 +80,12 @@ namespace APAtelier.DS.Avatar
 
             // Make sure the camera is always looking at the player
             playerCamera.transform.LookAt(transform.position + Vector3.up * 0.7f);
+
+        }
+
+        private void Idle()
+        {
+            _animancerComponent.Play(idleClip);
         }
     }
 }

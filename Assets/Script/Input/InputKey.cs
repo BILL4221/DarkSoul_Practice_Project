@@ -9,7 +9,8 @@ namespace APAtelier.DS.Input
         Up,
         Down,
         Left,
-        Right
+        Right,
+        Roll,
     }
 
     public enum AxisKey
