@@ -22,7 +22,7 @@ namespace APAtelier.DS.Input
             var axisVertical = UnityEngine.Input.GetAxis("Vertical");
             input.PressAxisKey[AxisKey.MoveVertical] = axisVertical;
 
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Joystick1Button0))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Joystick1Button0)|| UnityEngine.Input.GetKeyDown(KeyCode.Space) )
             {
                 input.PressKey.Add(InputKey.Roll);
             }

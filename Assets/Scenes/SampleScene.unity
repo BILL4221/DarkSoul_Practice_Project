@@ -696,7 +696,35 @@ MonoBehaviour:
   _animancerComponent: {fileID: 1383457082}
   idleClip: {fileID: 11400000, guid: ff7ee3533ec9c31448608ea97e741f0b, type: 2}
   rollClip: {fileID: 11400000, guid: 8f5942b7f7f29444da4a8847af8ae9b6, type: 2}
-  playerCamera: {fileID: 330585545}
+  _clips:
+    reorderableList:
+      canAdd: 1
+      canRemove: 1
+      draggable: 1
+      expandable: 1
+      multipleSelection: 1
+      isExpanded: 1
+      label:
+        m_Text: Keys
+        m_Image: {fileID: 0}
+        m_Tooltip: 
+      headerHeight: 18
+      footerHeight: 13
+      slideEasing: 0.15
+      verticalSpacing: 2
+      showDefaultBackground: 1
+      elementDisplayType: 0
+      elementNameProperty: 
+      elementNameOverride: 
+      elementIcon: {fileID: 0}
+    reqReferences: {fileID: 0}
+    isExpanded: 1
+    _keyValues: 0000000002000000
+    _keys: 0000000002000000
+    _values:
+    - {fileID: 11400000, guid: ff7ee3533ec9c31448608ea97e741f0b, type: 2}
+    - {fileID: 11400000, guid: 8f5942b7f7f29444da4a8847af8ae9b6, type: 2}
+  _playerCamera: {fileID: 330585545}
 --- !u!136 &1383457080
 CapsuleCollider:
   m_ObjectHideFlags: 0

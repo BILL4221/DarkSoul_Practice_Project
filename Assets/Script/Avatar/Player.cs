@@ -1,12 +1,18 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Animancer;
 using APAtelier.DS.Input;
+using RotaryHeart.Lib.SerializableDictionary;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace APAtelier.DS.Avatar
 {
+    public enum AnimationEnum
+    {
+        Idle,
+        Roll,
+    }
+    
     public class Player : Actor
     {
         [SerializeField] 
@@ -14,11 +20,19 @@ namespace APAtelier.DS.Avatar
         [SerializeField] 
         private ClipTransitionAsset rollClip;
         [SerializeField] 
-        private Camera playerCamera;
+        private SerializableDictionaryBase<AnimationEnum, AnimancerTransitionAssetBase> _clips;
+        [SerializeField] 
+        private Camera _playerCamera;
         private PlayerController _controller;
         private float idleTimer;
         private float cameraStartDistance;
         private Vector3 rotateValue;
+        private BasePlayerState currentState;
+        
+        public PlayerController Controller => _controller;
+        public AnimancerComponent AnimancerComponent => _animancerComponent;
+        public SerializableDictionaryBase<AnimationEnum, AnimancerTransitionAssetBase> Clips => _clips;
+        public Camera PlayerCamera => _playerCamera;
         
         private void Awake()
         {
@@ -28,42 +42,13 @@ namespace APAtelier.DS.Avatar
             _animancerComponent.Play(idleClip);
             cameraStartDistance = 3.2f;
             rotateValue = Vector3.zero;
+            SetState(new IdleState(this));
         }
 
         private void Update()
         {
-            var input = _controller.GetInput();
-
-            var moveValue = Vector3.zero;
-            if (input.PressAxisKey.TryGetValue(AxisKey.MoveHorizontal, out var hValue))
-            {
-                moveValue.x += hValue;
-            }
+            currentState?.OnStateUpdate();
             
-            if (input.PressAxisKey.TryGetValue(AxisKey.MoveVertical, out var vValue))
-            {
-                moveValue.z += vValue;
-            }
-
-            if (input.PressKey.Contains(InputKey.Roll))
-            {
-                _animancerComponent.Play(rollClip).Events.OnEnd += Idle;
-            }
-            
-            var speed = 5.0f;
-            // Calculate the movement direction based on camera rotation
-            Vector3 movementDirection = Quaternion.Euler(0, playerCamera.transform.eulerAngles.y, 0) * new Vector3(moveValue.x, 0, moveValue.z);
-            transform.position += Time.deltaTime * speed * movementDirection;
-            
-            idleClip.Transition.State.Parameter = moveValue.magnitude;
-            
-            // Rotate the player to face the movement direction
-            if (movementDirection != Vector3.zero)
-            {
-                Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, 60 * Time.deltaTime * 100);
-            }
-
             // Get right analog stick input
             float horizontalInput = UnityEngine.Input.GetAxis("RightHorizontal");
             float verticalInput = UnityEngine.Input.GetAxis("RightVertical");
@@ -76,16 +61,23 @@ namespace APAtelier.DS.Avatar
             Vector3 newPosition = transform.position + Vector3.up * 0.7f + offset;
 
             // Set the camera position
-            playerCamera.transform.position = newPosition;
+            _playerCamera.transform.position = newPosition;
 
             // Make sure the camera is always looking at the player
-            playerCamera.transform.LookAt(transform.position + Vector3.up * 0.7f);
+            _playerCamera.transform.LookAt(transform.position + Vector3.up * 0.7f);
 
         }
 
         private void Idle()
         {
             _animancerComponent.Play(idleClip);
+        }
+
+        public void SetState(BasePlayerState state)
+        {
+            currentState?.OnStateEnd();
+            currentState = state;
+            currentState.OnStateStart();
         }
     }
 }
