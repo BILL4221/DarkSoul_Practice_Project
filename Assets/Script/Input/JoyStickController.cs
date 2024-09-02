@@ -8,7 +8,7 @@ namespace APAtelier.DS.Input
     {
         public JoyStickController()
         {
-            inputStyle = InputStyle.Keyboard;
+            inputStyle = InputStyle.JoyStick;
         }
 
         public override PlayerInput GetInput()
@@ -22,11 +22,21 @@ namespace APAtelier.DS.Input
             var axisVertical = UnityEngine.Input.GetAxis("Vertical");
             input.PressAxisKey[AxisKey.MoveVertical] = axisVertical;
 
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Joystick1Button0)|| UnityEngine.Input.GetKeyDown(KeyCode.Space) )
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Joystick1Button0))
             {
                 input.PressKey.Add(InputKey.Roll);
             }
 
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Joystick1Button2))
+            {
+                input.PressKey.Add(InputKey.LAttack);
+            }
+            
+            
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Joystick1Button9))
+            {
+                input.PressKey.Add(InputKey.LockTarget);
+            }
             return input;
         }
     }

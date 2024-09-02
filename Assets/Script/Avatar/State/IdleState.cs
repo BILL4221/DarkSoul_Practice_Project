@@ -14,6 +14,7 @@ namespace APAtelier.DS.Avatar
         public override void OnStateStart()
         {
             _animancerComponent.Play(_clips[AnimationEnum.Idle]);
+            player.ActionFlag = ActionFlag.Rollable | ActionFlag.LAttack;
         }
 
         public override void OnStateUpdate()
@@ -30,16 +31,13 @@ namespace APAtelier.DS.Avatar
             {
                 moveValue.z += vValue;
             }
-
-            if (input.PressKey.Contains(InputKey.Roll))
-            {
-                player.SetState(new RollState(player));
-            }
             
             var speed = 5.0f;
             // Calculate the movement direction based on camera rotation
             Vector3 movementDirection = Quaternion.Euler(0, _playerCamera.transform.eulerAngles.y, 0) * new Vector3(moveValue.x, 0, moveValue.z);
             player.transform.position += Time.deltaTime * speed * movementDirection;
+            
+            player.ActorStat.AddStamina(player.Config.StaminaRegenRate * Time.deltaTime);
             
             ((LinearMixerTransitionAsset)_clips[AnimationEnum.Idle]).Transition.State.Parameter = moveValue.magnitude;
             

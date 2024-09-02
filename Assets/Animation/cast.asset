@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65baa284d24adb24b90b39482364509c, type: 3}
-  m_Name: roll
+  m_Name: cast
   m_EditorClassIdentifier: 
   _Transition:
     rid: 3881864520023408641
@@ -23,12 +23,27 @@ MonoBehaviour:
         _FadeDuration: 0.25
         _Events:
           _NormalizedTimes:
-          - 0.5929411
+          - 0.29350623
           - NaN
-          _Callbacks: []
+          _Callbacks:
+          - m_PersistentCalls:
+              m_Calls:
+              - m_Target: {fileID: 11400000, guid: 83744442e9b811348927fef7060c22e5,
+                  type: 2}
+                m_TargetAssemblyTypeName: 
+                m_MethodName: 
+                m_Mode: 1
+                m_Arguments:
+                  m_ObjectArgument: {fileID: 0}
+                  m_ObjectArgumentAssemblyTypeName: 
+                  m_IntArgument: 0
+                  m_FloatArgument: 0
+                  m_StringArgument: 
+                  m_BoolArgument: 0
+                m_CallState: 2
           _Names:
-          - ResetSpeed
-        _Clip: {fileID: -203655887218126122, guid: f65077e4b93dbe448a64d78974732091,
+          - CastSpell
+        _Clip: {fileID: -203655887218126122, guid: 21d1530d39fb7b442946f09d343285a0,
           type: 3}
         _Speed: 1.5
         _NormalizedStartTime: NaN

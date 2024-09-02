@@ -10,5 +10,8 @@ namespace APAtelier.DS.Avatar
     {
         [SerializeField] 
         protected AnimancerComponent _animancerComponent;
+        protected ActorStat _actorStat;
+
+        public ActorStat ActorStat => _actorStat;
     }
 }

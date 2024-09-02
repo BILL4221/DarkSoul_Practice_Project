@@ -1,9 +1,9 @@
+using System;
 using Animancer;
 using APAtelier.DS.Input;
+using APAtelier.DS.UI;
 using RotaryHeart.Lib.SerializableDictionary;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace APAtelier.DS.Avatar
 {
@@ -13,16 +13,34 @@ namespace APAtelier.DS.Avatar
         Roll,
     }
     
+    public enum AttackStateEnum
+    {
+        CastSpell,
+    }
+    
+    [Flags]
+    public enum ActionFlag
+    {
+        None,
+        Walkable,
+        Rollable,
+        LAttack,
+    }
+
     public class Player : Actor
     {
         [SerializeField] 
-        private LinearMixerTransitionAsset idleClip;
+        private PlayerConfig config;
         [SerializeField] 
-        private ClipTransitionAsset rollClip;
+        private LinearMixerTransitionAsset idleClip;
         [SerializeField] 
         private SerializableDictionaryBase<AnimationEnum, AnimancerTransitionAssetBase> _clips;
         [SerializeField] 
+        private SerializableDictionaryBase<AttackStateEnum, AttackStateParameter> _attackStateClips;
+        [SerializeField] 
         private Camera _playerCamera;
+        [SerializeField] 
+        private PlayerUI _playerUI;
         private PlayerController _controller;
         private float idleTimer;
         private float cameraStartDistance;
@@ -32,7 +50,11 @@ namespace APAtelier.DS.Avatar
         public PlayerController Controller => _controller;
         public AnimancerComponent AnimancerComponent => _animancerComponent;
         public SerializableDictionaryBase<AnimationEnum, AnimancerTransitionAssetBase> Clips => _clips;
+        public SerializableDictionaryBase<AttackStateEnum, AttackStateParameter> AttackStateClips => _attackStateClips;
         public Camera PlayerCamera => _playerCamera;
+        [HideInInspector] 
+        public ActionFlag ActionFlag;
+        public PlayerConfig Config => config;
         
         private void Awake()
         {
@@ -43,12 +65,51 @@ namespace APAtelier.DS.Avatar
             cameraStartDistance = 3.2f;
             rotateValue = Vector3.zero;
             SetState(new IdleState(this));
+            _actorStat = new ActorStat(config.BaseHP, config.BaseStamina, _playerUI);
         }
 
         private void Update()
         {
             currentState?.OnStateUpdate();
+            UpdateCamera();
+            CheckInterruptAction();
+        }
+
+        private void CheckInterruptAction()
+        {
+            var input = _controller.GetInput();
             
+            if (ActionFlag.HasFlag(ActionFlag.Rollable) && input.PressKey.Contains(InputKey.Roll) && _actorStat.Stamina >= config.RollCost)
+            {
+                _actorStat.AddStamina(-config.RollCost);
+                SetState(new RollState(this));
+            }
+            
+            var moveValue = Vector3.zero;
+            if (input.PressAxisKey.TryGetValue(AxisKey.MoveHorizontal, out var hValue))
+            {
+                moveValue.x += hValue;
+            }
+            
+            if (input.PressAxisKey.TryGetValue(AxisKey.MoveVertical, out var vValue))
+            {
+                moveValue.z += vValue;
+            }
+            
+            if (ActionFlag.HasFlag(ActionFlag.Walkable) && moveValue != Vector3.zero)
+            {
+                SetState(new IdleState(this));
+            }
+            
+            if (ActionFlag.HasFlag(ActionFlag.LAttack) && input.PressKey.Contains(InputKey.LAttack) && _actorStat.Stamina >= _attackStateClips[AttackStateEnum.CastSpell].StatminaCost)
+            {
+                _actorStat.AddStamina(-_attackStateClips[AttackStateEnum.CastSpell].StatminaCost);
+                SetState(new AttackState(this, _attackStateClips[AttackStateEnum.CastSpell]));
+            }
+        }
+
+        private void UpdateCamera()
+        {
             // Get right analog stick input
             float horizontalInput = UnityEngine.Input.GetAxis("RightHorizontal");
             float verticalInput = UnityEngine.Input.GetAxis("RightVertical");
@@ -65,13 +126,8 @@ namespace APAtelier.DS.Avatar
 
             // Make sure the camera is always looking at the player
             _playerCamera.transform.LookAt(transform.position + Vector3.up * 0.7f);
-
         }
 
-        private void Idle()
-        {
-            _animancerComponent.Play(idleClip);
-        }
 
         public void SetState(BasePlayerState state)
         {

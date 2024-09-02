@@ -11,6 +11,8 @@ namespace APAtelier.DS.Input
         Left,
         Right,
         Roll,
+        LAttack,
+        LockTarget,
     }
 
     public enum AxisKey
